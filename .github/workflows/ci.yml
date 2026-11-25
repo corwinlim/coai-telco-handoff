@@ -28,3 +28,28 @@ jobs:
         run: node tests/source-check.js
       - name: Check business logic
         run: node tests/logic-check.js
+
+  production-smoke:
+    name: Public homepage smoke test
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    # On the main branch, allow Vercel time to deploy the matching push.
+    if: github.event_name != 'pull_request'
+    steps:
+      - name: Check production HTTPS and content
+        shell: bash
+        run: |
+          set -euo pipefail
+          url='https://coai-telco-handoff.vercel.app/'
+          for attempt in $(seq 1 12); do
+            echo "Attempt $attempt / 12"
+            if curl --fail --silent --show-error --location --max-time 15 "$url" -o /tmp/coai-home.html &&
+               grep -q 'CoAi Telco Handoff' /tmp/coai-home.html &&
+               grep -q 'SYNTHETIC DATA DEMO' /tmp/coai-home.html; then
+              echo 'PUBLIC_HTTP_GATE=PASS'
+              exit 0
+            fi
+            sleep 10
+          done
+          echo 'PUBLIC_HTTP_GATE=FAIL'
+          exit 1
