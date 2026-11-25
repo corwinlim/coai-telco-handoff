@@ -1,29 +1,45 @@
-# Public release verification
+# CoAi Telco Handoff — Public Release and Evidence Gate
 
-## Project
-CoAi Telco Handoff — Build 11, static HTML/JavaScript, fictional cases only.
+Updated 2026-11-26 (MYT). No change to frozen Build 11 application code.
 
-## Source integrity
-The production application file is `index.html`. Frozen Build 11 source SHA-256:
+## Verified connected platform evidence
 
-`ed927901d0d382880ce5926ea2b35695f605baf2c29fbb0e7cca3155c2b62256`
+- GitHub repository: https://github.com/corwinlim/coai-telco-handoff
+- Branch: `main`. GitHub source and CI workflow are present.
+- Vercel project: `coai-telco-handoff`, Corwin's team.
+- Production deployment from Git commit `813dc90917bb5bdb33d75e96a789fcc85567fbbc` was reported READY by Vercel.
+- Public site alias: https://coai-telco-handoff.vercel.app/
+- GitHub Actions workflow file exists. Actual successful GitHub Actions **run** is NOT VERIFIED. A green **Vercel** commit status is not the same as a green Actions run.
+- Public HTTP 200 / browser workflow: NOT VERIFIED by independent external browser.
+- KrackedDevs submission receipt: NOT VERIFIED; previously stated deadline 2026-11-16 23:59 MYT.
 
-## Manual acceptance
-1. Open https://coai-telco-handoff.vercel.app/ without Vercel login.
-2. Select SIM-101 and confirm incident ID maps correctly.
-3. Generate handoff brief.
-4. Confirm downloading remains blocked until human review.
-5. Approve the review and download `coai-handoff-SIM-101.txt`.
-6. Edit incident details and verify approval is invalidated.
-7. Test a mobile viewport and ensure no horizontal overflow.
+## Windows public-HTTP test (run from a fresh public Internet connection)
 
-## Evidence classification
-- Source/logic/browser tests were reported passing on the local Build 11 artifact.
-- Vercel deployment status READY does **not** establish live browser acceptance.
-- GitHub source publication does **not** establish contest submission.
-- Use only synthetic incident details. No real customer records.
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\verify-public.ps1
+```
 
-## Current release gate
-- GitHub source: uploaded to main.
-- Vercel production: deployed; external browser E2E not independently confirmed.
-- KrackedDevs official submission: not independently verified.
+This read-only test checks HTTPS, HTTP 200, expected title/disclosure, and the original Build 11 HTML SHA-256. It **cannot** confirm that buttons work or a file downloads. It may report a hash mismatch if a host transforms HTML; investigate before calling that a code regression.
+
+## Browser test — capture screenshots and the downloaded TXT
+
+1. Open https://coai-telco-handoff.vercel.app/ in an incognito window signed out of Vercel.
+2. Select SIM-101; verify incident ID and other form fields populate.
+3. Generate a brief; distinguish facts vs unknowns.
+4. Verify Download remains blocked before human review.
+5. Approve human review and download `coai-handoff-SIM-101.txt`; inspect its text and synthetic label.
+6. Change an input; verify the previous approval is invalidated.
+7. Repeat on a narrow mobile viewport.
+8. Check https://github.com/corwinlim/coai-telco-handoff/actions for a successful `CoAi Telco Handoff CI` run. Record the exact run URL.
+9. Check https://krackeddevs.com/code/bounty/build-for-better-connectivity in the signed-in user account; obtain a real submission receipt if allowed. No receipt means NO-GO for 'submitted'.
+
+## Commercial validation
+
+Interview three real target stakeholders (two frontline support roles and one lead/dispatcher preferred) using **synthetic** cases only. Do not collect actual customer personal information, call records, or operator account access. Record the interview date, role, qualitative pain, CRM alternative, and permission to follow up. Do not invent participants, metrics or purchasing interest.
+
+## GO / NO-GO
+
+- Engineering: **GO for controlled user demo**, subject to verified public-browser operation.
+- CI: **NOT VERIFIED** until the Actions run is green.
+- Competition: **NO-GO for a submitted claim** until the platform gives a receipt.
+- Paid-pilot design: **NO-GO** until at least three authentic interviews show repeat handoff pain and a credible buyer/pilot path.
