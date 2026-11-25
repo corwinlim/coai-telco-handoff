@@ -14,4 +14,4 @@
 
 **GitHub source:** https://github.com/corwinlim/coai-telco-handoff
 
-**Submission status:** No verified KrackedDevs submission receipt. Confirm current competition eligibility before submitting; earlier recorded deadline was November 16, 2026.
+**Competition closure status (2026-11-26):** The user reported that the KrackedDevs submission entry is closed. No official submission receipt has been supplied or independently verified. This repository is an engineering demonstration, **not evidence of an eligible competition submission**. Previously recorded deadline: November 16, 2026. Do not resubmit or claim an extension without explicit organizer evidence.
