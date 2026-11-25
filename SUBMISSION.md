@@ -12,4 +12,6 @@
 
 **Working demo URL:** https://coai-telco-handoff.vercel.app/
 
-**GitHub (optional):** Add the actual GitHub repository URL after publishing.
+**GitHub source:** https://github.com/corwinlim/coai-telco-handoff
+
+**Submission status:** No verified KrackedDevs submission receipt. Confirm current competition eligibility before submitting; earlier recorded deadline was November 16, 2026.
