@@ -27,7 +27,7 @@ https://coai-telco-handoff.vercel.app/
 
 The root `index.html` is a directly usable standalone page. For local HTTP testing, run `python -m http.server 8000` from the repository root, then open http://localhost:8000/.
 
-The original release test suite exercises `site/index.html`, a byte-identical copy of the root page:
+The repository test scripts exercise the root `index.html` directly:
 
 ```bash
 node tests/source-check.js
