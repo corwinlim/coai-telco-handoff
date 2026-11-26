@@ -1,7 +1,7 @@
 # Build 12.7 — Malaysia Telecom Discovery Target Registry
 Date: 2026-11-27 (MYT)
 Owner: CoAi Telco Handoff
-Stage: **PUBLIC DESK RESEARCH ONLY — NO OUTREACH SENT**
+Stage: **PUBLIC RESEARCH + TWO GMAIL DRAFTS — NO OUTREACH SENT**
 
 ## Evidence tiers
 
@@ -47,6 +47,7 @@ Official sources checked on 2026-11-27:
 
 - Verified official organisational channels: **5 candidate organisations** (public research).
 - Named authorised interview contacts: **0**.
+- Gmail invitations drafted: **2**, individually inspected; drafts retained as UNSENT in the connected Gmail account.
 - Outreach messages sent: **0**.
 - Replies: **0**.
 - Interviews booked: **0**.
@@ -64,3 +65,13 @@ Official sources checked on 2026-11-27:
 | No customer records required for first research interviews | Any participation requires unauthorised telecom/customer data |
 
 **Next permission gate:** human approves the recipient/channel and the message text before any first contact. Do not send from this registry alone.
+
+
+## Build 12.9 — Draft-only audit (2026-11-27 MYT)
+
+- Telecontinent: draft ID `r6768156782972719007`, intended recipient `inquiries@telecontinent.com.my`, subject `Research interview request — technical support handoff workflows (CoAi)`; Gmail label `DRAFT` on inspection.
+- Brandt: draft ID `r4409163936743620846`, intended recipient `hello@brandtbiz.com`, subject `Request for a brief CX handoff-process research interview — CoAi`; Gmail label `DRAFT` on inspection.
+- Content reviewed: requests voluntary 15–20 minute nonconfidential conversations; discloses independent synthetic proof of concept and no real network integration; avoids asking for customer records or system access.
+- Sender identity: drafts were created in the connected Gmail account; confirm the intended visible sender/signature before dispatch.
+- **No actual messages sent; no reply or appointment evidence.** These draft IDs are workflow identifiers only; not recipient consent or deliverability confirmation.
+- Pre-send gate: review sender identity, email content and recipient once; ask user for explicit approval before any sending.
