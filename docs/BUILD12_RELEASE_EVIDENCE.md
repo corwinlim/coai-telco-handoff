@@ -8,12 +8,28 @@
 | Production deployment for commit `c1f0e877905bfed96254b0c03ee4c401fd5cba2e` | READY | Vercel deployment `dpl_9A8F65smsgLjDdwWcWWcyA6xSjSn` |
 | GitHub Actions source and logic checks | VERIFIED SUCCESS | Run [45694370925](https://github.com/corwinlim/coai-telco-handoff/actions/runs/45694370925), job `Source and logic checks`; individual source and logic steps both `success` |
 | Independent CI public homepage HTTP/content smoke test | VERIFIED SUCCESS | Run [45694370925](https://github.com/corwinlim/coai-telco-handoff/actions/runs/45694370925), job `Public homepage smoke test` successful. Test uses `curl --fail --location`, which verifies an HTTP 2xx outcome and expected text, but not strictly HTTP 200 or the full browser workflow. |
-| Independent automated Chromium SIM-101 generate/review/download | VERIFIED SUCCESS 2026-11-27 | GitHub Actions run [45888733693](https://github.com/corwinlim/coai-telco-handoff/actions/runs/45888733693), job `Production Chromium interaction and TXT download`: selected SIM-101, generated brief, checked review gate, downloaded and inspected synthetic TXT, revoked authorization after edit. |\n| User's own incognito browser walkthrough | NOT TESTED — USER CONFIRMED 2026-11-26 | Automated E2E passed, but no user screenshot or manual result supplied |
+| Independent automated Chromium SIM-101 generate/review/download | VERIFIED SUCCESS 2026-11-27 | GitHub Actions run [45888733693](https://github.com/corwinlim/coai-telco-handoff/actions/runs/45888733693), job `Production Chromium interaction and TXT download`: selected SIM-101, generated brief, checked review gate, downloaded and inspected synthetic TXT, revoked authorization after edit. |
+| User's own incognito browser walkthrough | NOT TESTED — USER CONFIRMED 2026-11-26 | Automated E2E passed, but no user screenshot or manual result supplied |
 | Competition submission entry | CLOSED — USER-REPORTED 2026-11-26 | User selected ‘submission entry closed’ after checking the KrackedDevs site. This is a first-party user observation, not an independently verified organizer announcement |
 | Competition submission receipt | NONE VERIFIED | No receipt provided. Do not mark as submitted or award eligible |
 | External prospect interviews | 0 VERIFIED | See BUILD12_CUSTOMER_DISCOVERY.md |
 
-## Chromium regression evidence (2026-11-27)\n\n- Initial action run [45888675667](https://github.com/corwinlim/coai-telco-handoff/actions/runs/45888675667) failed at Playwright installation because ubuntu-latest resolved to Ubuntu 26.04, unsupported by Playwright 1.56.1. The test never ran in that failed attempt.\n- Fixed by pinning only the browser E2E runner to `ubuntu-24.04` in commit `e4bb816fdfa612c0fe49fd53f6c7d280058b8fc7`.\n- Subsequent action run [45888733693](https://github.com/corwinlim/coai-telco-handoff/actions/runs/45888733693) returned `success` for all three jobs: `Source and logic checks`, `Public homepage smoke test`, and `Production Chromium interaction and TXT download`.\n- Production Chromium test code: `tests/production-browser-e2e.cjs`; tested against `https://coai-telco-handoff.vercel.app/`. No actual telecom customer data or carrier API used.\n- This proves automated browser execution, **not** a signed-off user acceptance test, commercial impact, or competition entry.\n\n## Key limitation
+## Chromium regression evidence (2026-11-27)
+
+- Initial action run [45888675667](https://github.com/corwinlim/coai-telco-handoff/actions/runs/45888675667) failed at Playwright installation because ubuntu-latest resolved to Ubuntu 26.04, unsupported by Playwright 1.56.1. The test never ran in that failed attempt.
+- Fixed by pinning only the browser E2E runner to `ubuntu-24.04` in commit `e4bb816fdfa612c0fe49fd53f6c7d280058b8fc7`.
+- Subsequent action run [45888733693](https://github.com/corwinlim/coai-telco-handoff/actions/runs/45888733693) returned `success` for all three jobs: `Source and logic checks`, `Public homepage smoke test`, and `Production Chromium interaction and TXT download`.
+- Production Chromium test code: `tests/production-browser-e2e.cjs`; tested against `https://coai-telco-handoff.vercel.app/`. No actual telecom customer data or carrier API used.
+- This proves automated browser execution, **not** a signed-off user acceptance test, commercial impact, or competition entry.
+
+## Build 13.2 — Automated mobile Chromium acceptance (2026-11-27)
+
+- CI run [45889818535](https://github.com/corwinlim/coai-telco-handoff/actions/runs/45889818535) completed **success** with all three jobs green.
+- Actual browser job output: `MOBILE_CHROMIUM_E2E=PASS: 390px viewport, SIM-110, gated TXT export and edit invalidation` and `PRODUCTION_CHROMIUM_E2E=PASS: desktop SIM-101 and mobile SIM-110`.
+- Validated simulated mobile Chromium viewport 390 × 844, SIM-110 generation, approval-gated download, synthetic TXT label, and revoked approval on edit. Also reverified desktop SIM-101. This is **automated mobile emulation**, not a physical Android or iPhone test and not a formal accessibility audit.
+- Application HTML was not changed. Neither competition submission nor customer interviews were performed.
+
+## Key limitation
 Vercel READY confirms build/deployment. Separately, an independent GitHub Actions runner completed an HTTPS homepage content smoke test successfully on push to `main` (run 45694370925; 2026-11-25 20:22:41 UTC). The smoke test does **not** establish exact HTTP 200 (only successful curl 2xx), UI interaction/download behavior, or competition submission.
 
 ## No-go boundaries
