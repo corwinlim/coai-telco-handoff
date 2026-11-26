@@ -56,7 +56,7 @@ jobs:
 
   production-browser-e2e:
     name: Production Chromium interaction and TXT download
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 12
     if: github.event_name != 'pull_request'
     steps:
