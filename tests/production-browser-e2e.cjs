@@ -38,7 +38,38 @@ const { chromium } = require('playwright');
     await page.locator('#generate').click();
     assert(await page.locator('#download').isDisabled(), 'Regeneration must require new acknowledgement');
 
-    console.log('PRODUCTION_CHROMIUM_E2E=PASS: synthetic selection, approval gate, TXT download and edit invalidation');
+    // Independent mobile-sized context exercises selection, review, export and edit invalidation.
+    const mobileContext = await browser.newContext({
+      viewport: { width: 390, height: 844 },
+      isMobile: true,
+      hasTouch: true,
+      deviceScaleFactor: 2,
+      acceptDownloads: true
+    });
+    try {
+      const mobile = await mobileContext.newPage();
+      const mobileResponse = await mobile.goto(url, { waitUntil: 'domcontentloaded', timeout: 60000 });
+      assert(mobileResponse && mobileResponse.ok(), 'Mobile homepage must load');
+      assert(await mobile.locator('#scenario').isVisible(), 'Mobile selector must be visible');
+      await mobile.selectOption('#scenario', '9');
+      assert.equal(await mobile.locator('#incidentId').inputValue(), 'SIM-110');
+      assert(await mobile.locator('#generate').isVisible(), 'Mobile Generate button must be visible');
+      await mobile.locator('#generate').click();
+      assert(await mobile.locator('#report').innerText().then(t => t.includes('SIM-110')), 'Mobile brief must include SIM-110');
+      assert(await mobile.locator('#download').isDisabled(), 'Mobile export must be blocked before review');
+      await mobile.locator('#approve').check();
+      const mobilePending = mobile.waitForEvent('download', { timeout: 20000 });
+      await mobile.locator('#download').click();
+      const mobileDownload = await mobilePending;
+      assert.equal(mobileDownload.suggestedFilename(), 'coai-handoff-SIM-110.txt');
+      assert(fs.readFileSync(await mobileDownload.path(), 'utf8').includes('SYNTHETIC / UNVERIFIED'));
+      await mobile.locator('#impact').fill('Edited fictional impact for mobile retest');
+      assert(await mobile.locator('#download').isDisabled(), 'Mobile edits must revoke export');
+      console.log('MOBILE_CHROMIUM_E2E=PASS: 390px viewport, SIM-110, gated TXT export and edit invalidation');
+    } finally {
+      await mobileContext.close();
+    }
+    console.log('PRODUCTION_CHROMIUM_E2E=PASS: desktop SIM-101 and mobile SIM-110');
   } finally {
     await browser.close();
   }
