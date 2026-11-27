@@ -20,7 +20,7 @@
 <div class="field"><label for="impact">User impact *</label><textarea id="impact" maxlength="1000" placeholder="Which activity is affected?"></textarea></div>
 <div class="field"><label for="checks">Troubleshooting already attempted</label><textarea id="checks" maxlength="1200" placeholder="Only include steps actually reported; otherwise leave blank."></textarea></div>
 <div class="field"><label for="observations">Other reported observations / evidence</label><textarea id="observations" maxlength="1200" placeholder="e.g., User reports intermittent signal bars; not independently verified."></textarea></div>
-<div class="actions"><button class="btn primary" id="generate">Generate handoff brief</button><button class="btn" id="reset">Reset sample</button></div><div id="validation" class="error" role="alert" aria-live="polite"></div></div></section>
+<div class="actions"><button class="btn primary" type="button" id="generate">Generate handoff brief</button><button class="btn" type="button" id="reset">Reset sample</button></div><div id="generateStatus" role="status" aria-live="polite" style="font-size:13px;font-weight:700;margin-top:9px;color:#075d59"></div><div id="validation" class="error" role="alert" aria-live="polite"></div></div></section>
 <section class="panel" aria-labelledby="outputtitle"><div class="panelhead"><h2 id="outputtitle">02 · Human-reviewed handoff</h2><span class="badge orange">Not a network diagnosis</span></div><div class="panelbody"><div class="flow"><span class="step active">1 · Intake</span><span class="step active">2 · Evidence</span><span class="step">3 · Review</span><span class="step">4 · Export</span></div><div id="report" class="report empty" aria-live="polite"><div class="symbol">▤</div><strong>No brief generated yet</strong><p class="subtle">Choose a case and generate a structured field visit brief.</p></div><div class="review"><label><input type="checkbox" id="approve" disabled><span>I have reviewed the brief, understand that all claims are unverified or synthetic, and will not treat suggested checks as a confirmed diagnosis.</span></label><div class="hint">Review must be acknowledged before export. Changing inputs invalidates approval.</div></div><div class="actions" style="margin-top:15px"><button class="btn dark" id="copy" disabled>Copy brief</button><button class="btn" id="download" disabled>Download .txt</button><button class="btn" id="print" disabled>Print</button></div><p class="subtle" style="margin-bottom:0">Privacy by design: no cookies, analytics, network calls, API keys, or persistent local storage.</p></div></section></div>
 <div class="footer">CoAi · Independent prototype for a synthetic telecom-support workflow. Not affiliated with a telecom provider. No coverage or fault cause is verified.</div></main><div id="toast" role="status" aria-live="polite"></div>
 <script>
@@ -51,10 +51,35 @@ function row(label,value,css=''){return `<div class="reportline ${css}"><div cla
 function showReport(b){$('report').className='report';$('report').innerHTML=`<div class="reporthead"><strong>${esc(b.id)}</strong><span class="reportid">SYNTHETIC · NOT VERIFIED</span></div>`+row('General area / reported window',b.area+' · '+b.when)+row('Reported issue',b.issue)+row('User impact',b.impact)+row('Already attempted',b.checks)+row('Reported observations',b.observations)+row('Evidence classification',b.classification)+row('Missing or unverified',b.unknowns.map(x=>'• '+x).join('\n'),'unknown')+row('Suggested next steps — not diagnosis',b.next.map((x,i)=>`${i+1}. ${x}`).join('\n'))+`<div class="warning">Fictional demo. Do not infer actual faults, coverage or provider actions.</div>`}
 function controls(){const ok=!!brief&&approved;$('copy').disabled=!ok;$('download').disabled=!ok;$('print').disabled=!ok;document.querySelectorAll('.step')[2].classList.toggle('active',ok);document.querySelectorAll('.step')[3].classList.toggle('active',ok)}
 function invalidate(){brief=null;approved=false;lastGenerated=null;$('approve').checked=false;$('approve').disabled=true;controls();$('report').className='report empty';$('report').innerHTML='<div class="symbol">▤</div><strong>Inputs changed</strong><p class="subtle">Generate a new brief and review it again before export.</p>'}
-function loadCase(i){const c=CASES[i];if(!c)return;Object.entries(c).forEach(([k,v])=>{const field=k==='id'?'incidentId':k;if($(field))$(field).value=v});$('channel').value='Customer-submitted report';$('validation').textContent='';invalidate()}
+function loadCase(i){const c=CASES[i];if(!c)return;Object.entries(c).forEach(([k,v])=>{const field=k==='id'?'incidentId':k;if($(field))$(field).value=v});$('channel').value='Customer-submitted report';$('validation').textContent='';$('generateStatus').textContent='';invalidate()}
 function toast(s){$('toast').textContent=s;$('toast').classList.add('show');clearTimeout(toast.timer);toast.timer=setTimeout(()=>$('toast').classList.remove('show'),3000)}
 const sel=$('scenario');sel.innerHTML=CASES.map((c,i)=>`<option value="${i}">${esc(c.id)} · ${esc(c.area)} — ${esc(c.symptom.slice(0,38))}…</option>`).join('');sel.addEventListener('change',()=>loadCase(+sel.value));FIELDS.forEach(id=>$(id).addEventListener('input',invalidate));
-$('generate').addEventListener('click',()=>{const d=data();if(!safe(d.symptom)||!safe(d.impact)){$('validation').textContent='Please provide both the reported connectivity issue and the user impact.';return}$('validation').textContent='';brief=makeBrief(d);lastGenerated=JSON.stringify(d);approved=false;$('approve').checked=false;$('approve').disabled=false;showReport(brief);controls();toast('Brief generated. Review and acknowledge before export.')});
+$('generate').addEventListener('click',()=>{
+  const status=$('generateStatus');
+  status.textContent='';
+  try {
+    const d=data();
+    if(!safe(d.symptom)||!safe(d.impact)){
+      $('validation').textContent='Cannot generate: enter both Reported connectivity issue and User impact.';
+      $('validation').scrollIntoView({block:'nearest'});
+      return;
+    }
+    $('validation').textContent='';
+    const nextBrief=makeBrief(d);
+    brief=nextBrief;lastGenerated=JSON.stringify(d);approved=false;
+    $('approve').checked=false;$('approve').disabled=false;
+    showReport(brief);controls();
+    status.textContent='Report generated: '+brief.id+'. Review the report in section 02 and acknowledge it before export.';
+    $('report').scrollIntoView({behavior:'auto',block:'start'});
+    toast('Brief generated. Review and acknowledge before export.');
+  } catch(e) {
+    brief=null;approved=false;lastGenerated=null;
+    $('approve').checked=false;$('approve').disabled=true;controls();
+    $('validation').textContent='Generate failed in this browser. Reload the page and try the synthetic case again. If it persists, report the browser and console error.';
+    status.textContent='';
+    console.error('COAI_GENERATE_ERROR',e);
+  }
+});
 $('approve').addEventListener('change',e=>{approved=e.target.checked;controls()});$('reset').addEventListener('click',()=>loadCase(+sel.value));
 $('copy').addEventListener('click',async()=>{if(!approved||!brief)return;try{await navigator.clipboard.writeText(textBrief(brief));toast('Reviewed brief copied.')}catch(e){toast('Clipboard unavailable here. Use Download .txt instead.')}});
 $('download').addEventListener('click',()=>{if(!approved||!brief)return;const blob=new Blob([textBrief(brief)],{type:'text/plain;charset=utf-8'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=`coai-handoff-${brief.id.replace(/[^a-zA-Z0-9_-]/g,'_')}.txt`;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);toast('Reviewed text brief exported.')});$('print').addEventListener('click',()=>{if(approved&&brief)window.print()});
