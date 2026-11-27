@@ -36,6 +36,16 @@ Vercel READY confirms build/deployment. Separately, an independent GitHub Action
 
 User explicitly reported: website opens, but an operation failed. This is **manual UAT FAIL**. Root cause not yet diagnosed. Prior GitHub Chromium passes remain accurate for their tested scenarios but do not supersede the reported failure. Stop release readiness claims until the failing action is isolated and a real-device retest passes. Triage: [Build 13.3](BUILD13_3_MANUAL_UAT_FAILURE_TRIAGE.md).
 
+## Build 13.4 — Generate feedback mitigation / revalidation (2026-11-27)
+
+- User's manual Windows Chrome/Edge symptom: page loads but clicking Generate does not produce a report. Exact browser version, screenshot, console log and reproduction trace were not provided; **root cause remains UNVERIFIED**.
+- Code inspection confirmed Generate handler present and responsive in earlier Chromium CI. Specific interaction gap addressed: successful generation had only a transient toast and a separate report panel; validation/failure feedback was limited. This is a *usability mitigation*, not proof of the actual cause of the user's failure.
+- Commit `6d92f7a705f3361709f25278f7c933c2a5c4055d` adds persistent success status, scroll-to-report, clear missing-field feedback, and error catch with `COAI_GENERATE_ERROR` console marker. No change to synthetic-only rules or review-before-export controls.
+- Commit `fa5b273bc0e051f45ac0f56ff805c4e62f008b14` adds Chromium assertions for missing required symptom, visible generate confirmation, report in viewport, plus mobile success label.
+- GitHub Actions run [45967386754](https://github.com/corwinlim/coai-telco-handoff/actions/runs/45967386754): 3/3 jobs `success`, including updated production Chromium E2E.
+- Manual Windows Chrome/Edge retest by the user: **NOT YET PROVIDED**; previous **manual UAT FAIL remains open**.
+- No messages sent, customer interviews, or external contract claims from this build.
+
 ## No-go boundaries
 Do not claim: verified network diagnostics, AI-powered inference, customer data integration, production incident approval controls, validated customer demand, award participation after the deadline, or a paid contract.
 
