@@ -17,8 +17,17 @@ const { chromium } = require('playwright');
     assert(await page.locator('#download').isDisabled(), 'Download must start disabled');
     assert(await page.locator('#approve').isDisabled(), 'Review checkbox must start disabled');
 
+    // Regression for real-user Generate complaint: validation, result feedback and visibility.
+    await page.locator('#symptom').fill('');
     await page.locator('#generate').click();
+    assert((await page.locator('#validation').innerText()).includes('Cannot generate'), 'Missing symptom should show a visible validation reason');
+    assert(await page.locator('#approve').isDisabled(), 'Invalid generate must not enable approval');
+    await page.locator('#scenario').selectOption('1');
+    await page.locator('#scenario').selectOption('0');
+    await page.locator('#generate').click();
+    assert((await page.locator('#generateStatus').innerText()).includes('Report generated: SIM-101'), 'Generate must visibly confirm success');
     assert(await page.locator('#report').innerText().then(t => t.includes('SIM-101')), 'Generated brief must include SIM-101');
+    assert(await page.locator('#report').evaluate(el => { const r=el.getBoundingClientRect();return r.top >= -2 && r.top < window.innerHeight; }), 'Generate must scroll report into viewport');
     assert(await page.locator('#download').isDisabled(), 'Download must remain disabled before acknowledgement');
     await page.locator('#approve').check();
     assert(await page.locator('#download').isEnabled(), 'Approval must enable download');
@@ -55,6 +64,7 @@ const { chromium } = require('playwright');
       assert.equal(await mobile.locator('#incidentId').inputValue(), 'SIM-110');
       assert(await mobile.locator('#generate').isVisible(), 'Mobile Generate button must be visible');
       await mobile.locator('#generate').click();
+      assert((await mobile.locator('#generateStatus').innerText()).includes('Report generated: SIM-110'));
       assert(await mobile.locator('#report').innerText().then(t => t.includes('SIM-110')), 'Mobile brief must include SIM-110');
       assert(await mobile.locator('#download').isDisabled(), 'Mobile export must be blocked before review');
       await mobile.locator('#approve').check();
