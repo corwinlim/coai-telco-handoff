@@ -9,7 +9,9 @@
 | GitHub Actions source and logic checks | VERIFIED SUCCESS | Run [45694370925](https://github.com/corwinlim/coai-telco-handoff/actions/runs/45694370925), job `Source and logic checks`; individual source and logic steps both `success` |
 | Independent CI public homepage HTTP/content smoke test | VERIFIED SUCCESS | Run [45694370925](https://github.com/corwinlim/coai-telco-handoff/actions/runs/45694370925), job `Public homepage smoke test` successful. Test uses `curl --fail --location`, which verifies an HTTP 2xx outcome and expected text, but not strictly HTTP 200 or the full browser workflow. |
 | Independent automated Chromium SIM-101 generate/review/download | VERIFIED SUCCESS 2026-11-27 | GitHub Actions run [45888733693](https://github.com/corwinlim/coai-telco-handoff/actions/runs/45888733693), job `Production Chromium interaction and TXT download`: selected SIM-101, generated brief, checked review gate, downloaded and inspected synthetic TXT, revoked authorization after edit. |
-| User-reported Generate failure | PREVIOUS FAIL (2026-11-27) | Original issue: Windows Chrome/Edge, clicking Generate produced no report; see [Build 13.3 triage](BUILD13_3_MANUAL_UAT_FAILURE_TRIAGE.md) |\n| User-provided SIM-101 report | CONTENT VERIFIED (2026-11-28) | User pasted full synthetic SIM-101 field-visit brief with review acknowledgement, missing/unverified section, and suggested next steps. Supports report generation and content, **not** the export mechanism or full browser acceptance |\n| Manual Windows end-to-end acceptance | PARTIAL / NOT FULLY VERIFIED | Report content was supplied; cannot tell whether copied or downloaded, and no explicit browser retest environment or actual TXT file was supplied |
+| User-reported Generate failure | PREVIOUS FAIL (2026-11-27) | Original issue: Windows Chrome/Edge, clicking Generate produced no report; see [Build 13.3 triage](BUILD13_3_MANUAL_UAT_FAILURE_TRIAGE.md) |
+| User-provided SIM-101 report | USER-EVIDENCED PASS (2026-11-28) | User pasted full synthetic SIM-101 field-visit brief and subsequently confirmed it came from clicking **Download .txt** successfully, not from Copy |
+| Manual Windows SIM-101 Generate → Review → Download | PASS — USER-REPORTED (2026-11-28) | In follow-up to Windows Chrome/Edge Generate failure, user supplied the report text and explicitly confirmed successful **Download .txt**. No independent screen recording or original TXT attachment collected; limited to the reported workflow |
 | Competition submission entry | CLOSED — USER-REPORTED 2026-11-26 | User selected ‘submission entry closed’ after checking the KrackedDevs site. This is a first-party user observation, not an independently verified organizer announcement |
 | Competition submission receipt | NONE VERIFIED | No receipt provided. Do not mark as submitted or award eligible |
 | External prospect interviews | 0 VERIFIED | See BUILD12_CUSTOMER_DISCOVERY.md |
@@ -34,7 +36,7 @@ Vercel READY confirms build/deployment. Separately, an independent GitHub Action
 
 ## Manual UAT regression decision (2026-11-27)
 
-User explicitly reported: website opens, but an operation failed. This is **manual UAT FAIL**. Root cause not yet diagnosed. Prior GitHub Chromium passes remain accurate for their tested scenarios but do not supersede the reported failure. Stop release readiness claims until the failing action is isolated and a real-device retest passes. Triage: [Build 13.3](BUILD13_3_MANUAL_UAT_FAILURE_TRIAGE.md).
+User explicitly reported: website opens, but an operation failed. This is **manual UAT FAIL**. Root cause not yet diagnosed. Prior GitHub Chromium passes remain accurate for their tested scenarios but do not supersede the reported failure. This paragraph records the **historical 2026-11-27 failure**; after the 2026-11-28 user-provided downloaded report and explicit download confirmation, the manual SIM-101 workflow is marked **PASS (user-reported)**. The original root cause remains unknown. Triage: [Build 13.3](BUILD13_3_MANUAL_UAT_FAILURE_TRIAGE.md).
 
 ## Build 13.4 — Generate feedback mitigation / revalidation (2026-11-27)
 
@@ -43,7 +45,7 @@ User explicitly reported: website opens, but an operation failed. This is **manu
 - Commit `6d92f7a705f3361709f25278f7c933c2a5c4055d` adds persistent success status, scroll-to-report, clear missing-field feedback, and error catch with `COAI_GENERATE_ERROR` console marker. No change to synthetic-only rules or review-before-export controls.
 - Commit `fa5b273bc0e051f45ac0f56ff805c4e62f008b14` adds Chromium assertions for missing required symptom, visible generate confirmation, report in viewport, plus mobile success label.
 - GitHub Actions run [45967386754](https://github.com/corwinlim/coai-telco-handoff/actions/runs/45967386754): 3/3 jobs `success`, including updated production Chromium E2E.
-- On 2026-11-28 the user provided complete SIM-101 report text, confirming that report content can be generated. Whether this came from the Download or Copy action is unknown. Treat the original Generate issue as **improved / observed output**; do not assert exact root cause or complete Windows manual end-to-end PASS.
+- On 2026-11-28 the user supplied the SIM-101 report and explicitly confirmed obtaining it by clicking **Download .txt**. The previously reported Generate issue is **resolved for the user's tested SIM-101 path** by user confirmation, though original root cause and broader cross-browser coverage remain unverified.
 - No messages sent, customer interviews, or external contract claims from this build.
 
 ## No-go boundaries
@@ -52,7 +54,7 @@ Do not claim: verified network diagnostics, AI-powered inference, customer data 
 ## Minimum closure
 1. **DONE:** GitHub Actions run https://github.com/corwinlim/coai-telco-handoff/actions/runs/45694370925 and its two successful jobs.
 2. Optional additional-network HTTP check: run `scripts/verify-public.ps1` from a user network; record exact response/hash.
-3. **AUTOMATED DONE:** GitHub Actions Chromium downloads and inspects synthetic SIM-101 TXT. **USER OUTPUT RECEIVED:** pasted full SIM-101 brief on 2026-11-28. **OPEN:** distinguish Copy from Download and finish manual UAT on Windows.
+3. **DONE (USER-REPORTED):** User supplied downloaded SIM-101 report text and confirmed successful **Download .txt** on 2026-11-28, following the Windows Chrome/Edge test. Independent Chromium automated download remains separately PASS.
 4. **CLOSED FOR NOW:** user reports the KrackedDevs entry is closed. No receipt exists in supplied evidence; stop submission work unless the organizer explicitly reopens it.
 5. **OPEN:** Begin 3 authentic role-specific conversations with consent; see `docs/BUILD12_CUSTOMER_DISCOVERY.md`.
 
@@ -60,6 +62,15 @@ Do not claim: verified network diagnostics, AI-powered inference, customer data 
 
 - User supplied the exact field-visit brief for incident `SIM-101`, with general area `Sample District North`, weekday evenings 19:00–21:00, and synthetic mobile-data interruptions.
 - Report includes `SYNTHETIC / UNVERIFIED — HUMAN REVIEW REQUIRED`, customer-reported issue and impact, previous checks, evidence limitations, unknown actual network conditions, three suggested next steps, and the demo review acknowledgement.
-- **Evidence strength:** direct user-provided output text. It substantiates report-content generation and review-related text, but it does not prove the browser, physical downloaded file, or user acceptance of the entire workflow; the same text could be copied.
+- **Evidence strength:** direct user-provided output text, plus explicit confirmation that the **Download .txt** button successfully downloaded the file. This supports user acceptance of the SIM-101 Generate → Review → Download path; the raw downloaded file itself has not been separately attached.
 - No real telecom investigation, network diagnosis, or customer interview occurred. No permission to send the two Gmail drafts.
-- **Decision:** Generate outcome provisionally recovered at content level. Keep manual end-to-end UAT open until download and device are explicitly verified.
+- **Decision updated 2026-11-28:** Manual SIM-101 Generate → Review → Download **PASS (user-reported)**; original failure is closed for that tested path. Wider device coverage, error-free operation across scenarios, and historical root cause are still NOT VERIFIED.
+
+## Build 13.5 — User confirms actual TXT download (2026-11-28)
+
+- User explicitly stated: **"我点击 Download .txt 成功下载文件"** after providing the complete SIM-101 field-visit brief.
+- The prior user complaint concerned **Windows Chrome/Edge Generate not producing a report**. The user's next provided report and successful-download statement show the tested SIM-101 flow has recovered from that earlier blocker.
+- Manual UAT decision for this specific path: **PASS — USER-REPORTED**, with a clear source distinction from GitHub's independent automated Chromium PASS.
+- Full root-cause attribution, recorded video proof, raw TXT attachment, and support for all browsers and scenarios remain **NOT VERIFIED**. Do not claim a certified production rollout.
+- No competition submission receipt, paid customer, or real telecom investigation is evidenced.
+- Outreach permission remains **WITHHELD**. Telecontinent and Brandt Gmail messages remain unsent drafts.
