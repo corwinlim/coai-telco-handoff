@@ -80,3 +80,5 @@ jobs:
         env:
           COAI_URL: https://coai-telco-handoff.vercel.app/
         run: node tests/production-browser-e2e.cjs
+      - name: Verify offline consented interview capture
+        run: node tests/build14-interview-e2e.cjs
