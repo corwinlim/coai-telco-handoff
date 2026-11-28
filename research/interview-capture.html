@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CoAi · Offline Interview Evidence Capture</title>
+<style>
+:root{font-family:system-ui,-apple-system,"Segoe UI",Arial,sans-serif;color:#173047;background:#f4f7fa;line-height:1.5}*{box-sizing:border-box}body{margin:0}
+header{background:#10283d;color:white;padding:22px max(20px,calc((100vw - 900px)/2))}main{max-width:900px;margin:auto;padding:26px 18px 60px}
+h1{font-size:clamp(24px,4vw,34px);margin:0}p{margin:9px 0}.panel{background:white;border:1px solid #d3e0e5;border-radius:14px;padding:22px;margin-top:18px}
+.notice{border-left:4px solid #bf7d24;background:#fff8e9;padding:12px 14px}label{display:block;font-size:13px;font-weight:650;margin:17px 0 6px}
+input:not([type=checkbox]),select,textarea{display:block;width:100%;font:inherit;color:inherit;border:1px solid #bdcdd6;border-radius:8px;padding:10px}
+textarea{min-height:76px;resize:vertical}.check{display:flex;align-items:flex-start;gap:10px;margin:15px 0}.check input{margin-top:5px}
+button{font:inherit;background:#087b7c;color:white;border:0;border-radius:9px;padding:12px 17px;font-weight:750;cursor:pointer}button:disabled{opacity:.4;cursor:not-allowed}
+#result{white-space:pre-wrap;overflow-wrap:anywhere;background:#eff6f8;padding:14px;border-radius:8px;margin-top:12px;min-height:44px}
+#err{color:#a32626;font-weight:700;white-space:pre-wrap;margin:10px 0}.subtle{color:#4b6375;font-size:13px}
+@media(max-width:600px){.panel{padding:16px}header{padding:18px}}
+</style></head><body>
+<header><h1>CoAi · Interview Evidence Capture</h1><p>Independent local research notebook · No backend · No automatic outreach</p></header>
+<main><p class="notice"><strong>Private / synthetic-only workflow:</strong> Do not enter names, phone numbers, company confidential documents, customer IDs, screenshots, proprietary tickets or credentials. Do not record audio. This page does not transmit data. The exported TXT remains on your device unless you choose to share it.</p>
+<section class="panel">
+<h2>1. Consent and research context</h2>
+<p class="subtle">Speak only with an independently willing participant. Interview notes are self-reported unless separately documented. This is not authorisation to use an employer's data or systems.</p>
+<label for="alias">Anonymous participant alias</label><select id="alias"><option value="">Select alias</option><option>P01</option><option>P02</option><option>P03</option></select>
+<label for="role">General role category</label><select id="role"><option value="">Select role</option><option value="frontline">Frontline support</option><option value="dispatch">Field dispatch / coordination</option><option value="operations">Operations / QA</option><option value="other">Other / unknown</option></select>
+<div class="check"><input id="consent" type="checkbox"><label for="consent" style="margin:0">The participant voluntarily agreed to a non-confidential process discussion and to these anonymous notes.</label></div>
+<div class="check"><input id="held" type="checkbox"><label for="held" style="margin:0">The interview actually took place (do not mark this for a hypothetical or synthetic rehearsal).</label></div>
+<label for="source">Evidence type</label><select id="source"><option value="">Select evidence type</option><option value="B">B — Direct participant comments, non-attributed, with permission</option><option value="C">C — Participant self-reported estimate</option><option value="D">D — Researcher assumption (not participant evidence)</option></select>
+</section>
+<section class="panel"><h2>2. Problem discovery (do not pitch first)</h2>
+<label for="workflow">Current handoff steps in general terms</label><textarea id="workflow" maxlength="800" placeholder="Only non-confidential workflow description"></textarea>
+<label for="missing">Missing information or rework mentioned by participant</label><textarea id="missing" maxlength="800" placeholder="Include 'none' when existing workflow is adequate"></textarea>
+<label for="counter">Strongest counterexample / reason not to use CoAi</label><textarea id="counter" maxlength="800" placeholder="e.g., existing CRM already provides complete handoff"></textarea>
+<label for="measure">How the team currently measures handoff delay, if known</label><textarea id="measure" maxlength="500" placeholder="Distinguish rough estimate from documented aggregate measure"></textarea>
+<label for="buyer">Who could authorise a synthetic-only evaluation?</label><textarea id="buyer" maxlength="500" placeholder="Role/title only; do not enter a person's name"></textarea>
+<label for="permission">Pilot/next-step permission</label><select id="permission"><option value="none">Not discussed / not granted</option><option value="followup">Participant permits follow-up only</option><option value="referral">Participant offered referral (not organisation approval)</option></select>
+<p class="subtle">Do not equate follow-up permission or a referral with organisational procurement, a pilot agreement, or purchase intent.</p>
+<div id="err" role="alert" aria-live="polite"></div><button type="button" id="generate">Generate local interview record</button>
+<div id="result" role="status" aria-live="polite">No interview record created.</div>
+<p><button type="button" id="download" disabled>Download interview TXT</button></p>
+</section></main>
+<script>
+'use strict';
+const $=id=>document.getElementById(id);let payload=null;
+const fields=['alias','role','consent','held','source','workflow','missing','counter','measure','buyer','permission'];
+function val(id){return $(id).value.trim().replace(/\r/g,'')}
+function invalidate(){payload=null;$('download').disabled=true;$('result').textContent='Inputs changed. Generate a new local record.'}
+fields.forEach(id=>$(id).addEventListener('input',invalidate));
+fields.forEach(id=>$(id).addEventListener('change',invalidate));
+$('generate').addEventListener('click',()=>{
+ $('err').textContent='';payload=null;$('download').disabled=true;
+ if(!$('consent').checked||!$('held').checked){$('err').textContent='Cannot record a completed interview without both voluntary consent and confirmation that it actually occurred.';return}
+ if(!val('alias')||!val('role')||!val('source')||!val('workflow')||!val('missing')||!val('counter')){
+  $('err').textContent='Missing required: alias, role, evidence grade, workflow, pain/none, or counterexample.';return}
+ if(val('source')==='D'){$('err').textContent='Researcher assumption (D) cannot be counted as a participant interview; use a separate hypothesis log.';return}
+ const lines=[
+  'COAI BUILD14 — INTERVIEW EVIDENCE RECORD',
+  'PARTICIPANT-REPORTED / NOT AN OPERATOR ENDORSEMENT',
+  'ALIAS: '+val('alias'),
+  'ROLE CATEGORY: '+val('role'),
+  'CONSENT: confirmed by interviewer (not digitally verified)',
+  'INTERVIEW HELD: confirmed by interviewer (not digitally verified)',
+  'EVIDENCE GRADE: '+val('source'),
+  'CURRENT WORKFLOW: '+val('workflow'),
+  'PAIN OR NONE: '+val('missing'),
+  'COUNTEREXAMPLE: '+val('counter'),
+  'BASELINE MEASUREMENT SOURCE: '+(val('measure')||'Not supplied'),
+  'AUTHORISING ROLE IF ANY: '+(val('buyer')||'Not verified'),
+  'FOLLOW-UP PERMISSION: '+val('permission'),
+  'PILOT AUTHORISATION: NOT VERIFIED',
+  'CUSTOMER/NETWORK DATA: NOT COLLECTED BY DESIGN',
+  'COMMERCIAL VALUE: NOT VERIFIED',
+  'THIS FILE IS A HUMAN-ENTERED RECORD, NOT INDEPENDENT PROOF'
+ ];
+ payload=lines.join('\n');$('result').textContent='Local record ready. Review your entries before downloading. No network request has been made.';$('download').disabled=false;
+});
+$('download').addEventListener('click',()=>{
+ if(!payload)return;
+ const blob=new Blob([payload],{type:'text/plain;charset=utf-8'});
+ const url=URL.createObjectURL(blob),a=document.createElement('a');
+ a.href=url;a.download='coai-interview-'+val('alias')+'.txt';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
+});
+</script></body></html>
