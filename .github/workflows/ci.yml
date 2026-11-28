@@ -28,6 +28,10 @@ jobs:
         run: node tests/source-check.js
       - name: Check business logic
         run: node tests/logic-check.js
+      - name: Check commercial validation guardrails
+        run: |
+          node tests/build14-analysis-check.cjs
+          node scripts/build14-analyze.cjs docs/BUILD14_OBSERVATIONS.csv
 
   production-smoke:
     name: Public homepage smoke test
