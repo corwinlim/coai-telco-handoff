@@ -1,0 +1,44 @@
+'use strict';
+const assert=require('node:assert/strict');
+const fs=require('node:fs');
+const path=require('node:path');
+const {pathToFileURL}=require('node:url');
+const {chromium}=require('playwright');
+(async()=>{
+ const browser=await chromium.launch({headless:true});
+ const ctx=await browser.newContext({acceptDownloads:true});
+ const page=await ctx.newPage();
+ try{
+   await page.goto(pathToFileURL(path.resolve(__dirname,'../research/interview-capture.html')).href);
+   await page.locator('#alias').selectOption('P01');
+   await page.locator('#role').selectOption('frontline');
+   await page.locator('#source').selectOption('C');
+   await page.locator('#workflow').fill('Synthetic study: existing form then field handoff');
+   await page.locator('#missing').fill('Synthetic note: clarification may be required');
+   await page.locator('#counter').fill('Synthetic note: CRM could already cover all fields');
+   await page.locator('#generate').click();
+   assert((await page.locator('#err').innerText()).includes('voluntary consent'),'No-consent must be blocked');
+   assert(await page.locator('#download').isDisabled());
+   await page.locator('#consent').check();
+   await page.locator('#generate').click();
+   assert((await page.locator('#err').innerText()).includes('confirmation'),'Non-held interview must be blocked');
+   await page.locator('#held').check();
+   await page.locator('#source').selectOption('D');
+   await page.locator('#generate').click();
+   assert((await page.locator('#err').innerText()).includes('assumption'),'Assumption cannot count as real interview');
+   await page.locator('#source').selectOption('C');
+   await page.locator('#generate').click();
+   assert(await page.locator('#download').isEnabled(),'Valid record enables download');
+   const pending=page.waitForEvent('download',{timeout:15000});
+   await page.locator('#download').click();
+   const dl=await pending;
+   assert.equal(dl.suggestedFilename(),'coai-interview-P01.txt');
+   const text=fs.readFileSync(await dl.path(),'utf8');
+   assert(text.includes('HUMAN-ENTERED RECORD, NOT INDEPENDENT PROOF'));
+   assert(text.includes('PILOT AUTHORISATION: NOT VERIFIED'));
+   await page.locator('#missing').fill('Synthetic revised note');
+   assert(await page.locator('#download').isDisabled(),'Changing note must invalidate approval');
+   assert(!(await page.locator('#result').innerText()).includes('Local record ready'),'Stale ready state blocked');
+   console.log('BUILD14_OFFLINE_INTERVIEW_E2E=PASS: consent, held, D-rejection, TXT, invalidation');
+ }finally{await browser.close()}
+})().catch(e=>{console.error('BUILD14_OFFLINE_INTERVIEW_E2E=FAIL',e);process.exitCode=1});
